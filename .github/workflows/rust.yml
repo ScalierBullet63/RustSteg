@@ -36,17 +36,18 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-cargo-build-
 
-    - name: Install dependencies
+    - name: Install dependencies (Linux)
+      if: runner.os == 'Linux'
       run: sudo apt-get update && sudo apt-get install -y libssl-dev pkg-config
 
     - name: Build project
       run: cargo build --verbose
 
     - name: Check formatting
-      run: cargo fmt -- --check
+      run: cargo fmt --all -- --check
 
     - name: Run Clippy
-      run: cargo clippy -- -D warnings
+      run: cargo clippy --all-targets -- -D warnings
 
     - name: Run tests
       run: cargo test --verbose
