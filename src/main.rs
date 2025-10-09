@@ -1,6 +1,9 @@
 use clap::Parser;
 use image::{DynamicImage, ImageError, ImageReader};
 
+//Custom types
+type ImageMatrixType = Vec<Vec<[u8; 4]>>;
+
 /// Simple program to greet a person
 #[derive(Parser, Debug)]
 #[command(version, about, long_about = None)]
@@ -13,7 +16,6 @@ struct Args {
     #[arg(short, long)]
     msg: Option<String>,
 }
-
 fn main() {
     let args = Args::parse();
 
@@ -42,9 +44,9 @@ fn main() {
     };
 
     // println!("{:?}", img);
-    for y in 0usize..height as usize {
-        for x in 0usize..width as usize {
-            print!("{:?}", img[y][x]);
+    for y in img.iter().take(height as usize) {
+        for _ in 0..width {
+            print!("{:?}", y);
         }
         println!();
         println!();
@@ -52,13 +54,13 @@ fn main() {
     }
 }
 
-fn image_reader(target_file: String) -> Result<(Vec<Vec<[u8; 4]>>, u32, u32), ImageError> {
+fn image_reader(target_file: String) -> Result<(ImageMatrixType, u32, u32), ImageError> {
     let img: DynamicImage = ImageReader::open(target_file)?.decode()?;
 
     let rgba_image: image::ImageBuffer<image::Rgba<u8>, Vec<u8>> = img.to_rgba8();
     let (width, height) = rgba_image.dimensions();
 
-    let mut rgba_image_matrix: Vec<Vec<[u8; 4]>> = Vec::new();
+    let mut rgba_image_matrix: ImageMatrixType = Vec::new();
 
     for y in 0..height {
         let mut row: Vec<[u8; 4]> = Vec::new();
