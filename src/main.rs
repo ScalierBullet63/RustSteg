@@ -16,6 +16,7 @@ struct Args {
     #[arg(short, long)]
     msg: Option<String>,
 }
+
 fn main() {
     let args: Args = Args::parse();
 
@@ -32,7 +33,7 @@ fn main() {
 
     println!("Selected {}", target_file);
 
-    let (img, width, height): (ImageMatrixType, u32, u32) = match image_reader(target_file) {
+    let (img, _width, height): (ImageMatrixType, u32, u32) = match image_reader(target_file) {
         Ok((image, width, height)) => {
             println!("Success!");
             (image, width, height)
@@ -45,8 +46,10 @@ fn main() {
 
     // println!("{:?}", img);
     for y in img.iter().take(height as usize) {
-        for _ in 0..width {
-            print!("{:?}", y);
+        for pixel in y {
+            print!("Red: {:?} ", pixel[0]);
+            print!("Green: {:?} ", pixel[1]);
+            println!("Blue: {:?}", pixel[2]);
         }
         println!();
         println!();
