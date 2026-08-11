@@ -1,5 +1,8 @@
 use clap::Parser;
 use image::{DynamicImage, ImageError, ImageReader};
+use std::str::Bytes;
+
+mod payload-parser;
 
 //Custom types
 type ImageMatrixType = Vec<Vec<[u8; 4]>>;
@@ -18,6 +21,7 @@ struct Args {
 }
 
 fn main() {
+    const DEBUG: bool = false;
     let args: Args = Args::parse();
 
     let target_file: String = match args.target_file {
@@ -30,6 +34,25 @@ fn main() {
             return;
         }
     };
+
+    let mut hidden_bits: Vec<u8> = Vec::new();
+
+    let bytes: Bytes = "Ciao ".bytes();
+
+    if DEBUG {
+        dbg!(&bytes);
+    }
+
+    for byte in bytes {
+        let binary: String = format!("{byte:b}");
+        dbg!(&binary);
+        for bit in binary.as_str().chars() {
+            println!("{bit}");
+            hidden_bits.push(bit as u8 - 48);
+        }
+    }
+
+    dbg!(&hidden_bits);
 
     println!("Selected {}", target_file);
 
@@ -44,7 +67,10 @@ fn main() {
         }
     };
 
-    // println!("{:?}", img);
+    if DEBUG {
+        dbg!(&img);
+    }
+
     for y in img.iter().take(height as usize) {
         for pixel in y {
             print!("Red: {:?} ", pixel[0]);
