@@ -128,5 +128,5 @@ p = "job:pedantic"
 
 # My Jobs
 [jobs.debug]
-command = ["cargo", "run", "--", "-t", "./debug/image.png"]
+command = ["cargo", "run", "--", "-t", "./debug/image.png", "-m", "Test"]
 need_stdout = true

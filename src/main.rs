@@ -3,35 +3,27 @@ mod payload;
 
 use clap::Parser;
 
-/// Simple program to greet a person
+/// Advanced CLI steganography tool
 #[derive(Parser, Debug)]
 #[command(version, about, long_about = None)]
 struct Args {
     /// Target file
     #[arg(short, long)]
-    target_file: Option<String>,
+    target_file: String,
 
     /// Message to hide
     #[arg(short, long)]
-    msg: Option<String>,
+    msg: String,
 }
 
 fn main() {
     let args: Args = Args::parse();
 
-    let target_file: String = match args.target_file {
-        Some(name) => {
-            println!("Target file: {}", name);
-            name
-        }
-        None => {
-            println!("No target file specified!");
-            return;
-        }
-    };
+    let target_file: String = args.target_file;
+    let hidden_message: String = args.msg;
 
     image::process_image(target_file.clone());
-    payload::convert_binary();
+    payload::convert_binary(hidden_message);
 
     println!("Selected {}", target_file);
 }

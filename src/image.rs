@@ -4,7 +4,7 @@ use image::{DynamicImage, ImageError, ImageReader};
 type ImageMatrixType = Vec<Vec<[u8; 4]>>;
 
 pub fn process_image(target_file: String) {
-    let (img, _width, height): (ImageMatrixType, u32, u32) = match image_reader(target_file) {
+    let (img, _width, _height): (ImageMatrixType, u32, u32) = match image_reader(target_file) {
         Ok((image, width, height)) => {
             println!("Success!");
             (image, width, height)
@@ -15,16 +15,8 @@ pub fn process_image(target_file: String) {
         }
     };
 
-    for y in img.iter().take(height as usize) {
-        for pixel in y {
-            print!("Red: {:?} ", pixel[0]);
-            print!("Green: {:?} ", pixel[1]);
-            println!("Blue: {:?}", pixel[2]);
-        }
-        println!();
-        println!();
-        println!();
-    }
+    #[cfg(debug_assertions)]
+    debug_image(&img);
 }
 
 fn image_reader(target_file: String) -> Result<(ImageMatrixType, u32, u32), ImageError> {
@@ -45,4 +37,15 @@ fn image_reader(target_file: String) -> Result<(ImageMatrixType, u32, u32), Imag
     }
 
     Ok((rgba_image_matrix, width, height))
+}
+
+fn debug_image(img: &ImageMatrixType) {
+    for y in img.iter() {
+        for pixel in y {
+            print!("Red: {:?} ", pixel[0]);
+            print!("Green: {:?} ", pixel[1]);
+            println!("Blue: {:?}", pixel[2]);
+        }
+        println!();
+    }
 }
