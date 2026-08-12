@@ -1,7 +1,9 @@
-use image::{DynamicImage, ImageError, ImageReader};
+use image::{DynamicImage, ImageBuffer, ImageError, ImageReader, Rgba};
 
 //Custom types
-type ImageMatrix = Vec<Vec<[u8; 4]>>;
+type ImageMatrix = Vec<ImageRow>;
+type Pixel = [u8; 4];
+type ImageRow = Vec<Pixel>;
 
 pub struct Image {
     pixel_matrix: ImageMatrix,
@@ -41,15 +43,15 @@ impl Image {
 fn image_reader(target_file: &str) -> Result<(ImageMatrix, u32, u32), ImageError> {
     let img: DynamicImage = ImageReader::open(target_file)?.decode()?;
 
-    let rgba_image: image::ImageBuffer<image::Rgba<u8>, Vec<u8>> = img.to_rgba8();
+    let rgba_image: ImageBuffer<Rgba<u8>, Vec<u8>> = img.to_rgba8();
     let (width, height): (u32, u32) = rgba_image.dimensions();
 
-    let mut rgba_image_matrix: ImageMatrix = Vec::new();
+    let mut rgba_image_matrix: ImageMatrix = ImageMatrix::new();
 
     for y in 0..height {
-        let mut row: Vec<[u8; 4]> = Vec::new();
+        let mut row: ImageRow = ImageRow::new();
         for x in 0..width {
-            let pixel: &image::Rgba<u8> = rgba_image.get_pixel(x, y);
+            let pixel: &Rgba<u8> = rgba_image.get_pixel(x, y);
             row.push(pixel.0);
         }
         rgba_image_matrix.push(row);
