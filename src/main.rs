@@ -23,7 +23,11 @@ fn main() {
     let hidden_message: String = args.msg;
 
     image::process_image(target_file.clone());
-    payload::convert_binary(hidden_message);
+    let mut payload = payload::Payload::new();
+    payload.set_plain_text(hidden_message);
+
+    dbg!(payload.plain_text());
+    dbg!(payload.binary());
 
     println!("Selected {}", target_file);
 }
