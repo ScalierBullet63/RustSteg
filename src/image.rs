@@ -18,27 +18,23 @@ impl Image {
         }
     }
 
-    pub fn load_image(&mut self, target_file: &str) {
-        match image_reader(target_file) {
-            Ok((image, width, height)) => {
-                #[cfg(debug_assertions)]
-                {
-                    println!("Success!");
-                    dbg!(&image);
-                }
+    pub fn load_image(&mut self, target_file: &str) -> Result<(), ImageError> {
+        let (image, width, height) = image_reader(target_file)?;
 
-                self.pixel_matrix = image;
-                self.width = width;
-                self.height = height;
-            }
-            Err(e) => {
-                println!("Error loading image: {}", e);
-                return;
-            }
-        };
+        #[cfg(debug_assertions)]
+        {
+            println!("Success!");
+            dbg!(&image);
+        }
+
+        self.pixel_matrix = image;
+        self.width = width;
+        self.height = height;
 
         #[cfg(debug_assertions)]
         debug_image(&self.pixel_matrix);
+
+        Ok(())
     }
 }
 

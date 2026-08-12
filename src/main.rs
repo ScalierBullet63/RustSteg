@@ -24,7 +24,10 @@ fn main() {
 
     //Process image
     let mut image = image::Image::new();
-    image.load_image(&target_file);
+    match image.load_image(&target_file) {
+        Ok(()) => println!("Image loaded successfully"),
+        Err(e) => println!("Error: {e}"),
+    }
 
     //Process payload
     let mut payload = payload::Payload::new();
