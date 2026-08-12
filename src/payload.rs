@@ -9,7 +9,7 @@ impl Payload {
     pub fn new() -> Self {
         Self {
             plain_text: String::new(),
-            binary: Vec::new(),
+            binary: Binary::new(),
         }
     }
 

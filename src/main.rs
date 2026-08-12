@@ -22,12 +22,19 @@ fn main() {
     let target_file: String = args.target_file;
     let hidden_message: String = args.msg;
 
-    image::process_image(target_file.clone());
+    //Process image
+    let mut image = image::Image::new();
+    image.load_image(&target_file);
+
+    //Process payload
     let mut payload = payload::Payload::new();
     payload.set_plain_text(hidden_message);
 
-    dbg!(payload.plain_text());
-    dbg!(payload.binary());
+    #[cfg(debug_assertions)]
+    {
+        dbg!(payload.plain_text());
+        dbg!(payload.binary());
+    }
 
     println!("Selected {}", target_file);
 }
