@@ -27,19 +27,22 @@ impl Payload {
         &self.plain_text
     }
 
-    pub fn binary(&self) -> &[u8] {
+    pub fn binary(&self) -> &Vec<u8> {
         &self.binary
     }
 
     fn convert_binary(&mut self, hidden_message: &str) {
         let mut hidden_bits: Binary = Vec::new();
+        let mut binary: String = String::new();
 
-        for byte in hidden_message.bytes() {
-            let binary: String = format!("{byte:b}");
-            for bit in binary.as_str().chars() {
-                hidden_bits.push(bit.to_digit(2).unwrap() as u8);
-            }
+        for char in hidden_message.to_string().into_bytes() {
+            binary += &format!("0{:b}", char);
         }
+
+        for bit in binary.chars() {
+            hidden_bits.push(bit.to_digit(2).unwrap() as u8);
+        }
+
         self.binary = hidden_bits;
     }
 }

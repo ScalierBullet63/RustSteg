@@ -1,6 +1,9 @@
 mod image;
 mod payload;
 
+use crate::image::Image;
+use crate::payload::Payload;
+
 use clap::Parser;
 
 /// Advanced CLI steganography tool
@@ -22,22 +25,24 @@ fn main() {
     let target_file: String = args.target_file;
     let hidden_message: String = args.msg;
 
+    println!("Selected {}", &target_file);
+
     //Process image
-    let mut image = image::Image::new();
+    let mut image = Image::new();
     match image.load_image(&target_file) {
         Ok(()) => println!("Image loaded successfully"),
         Err(e) => println!("Error: {e}"),
-    }
+    };
 
     //Process payload
-    let mut payload = payload::Payload::new();
+    let mut payload = Payload::new();
     payload.set_plain_text(hidden_message);
+
+    image.insert_hidden_message(payload.binary());
 
     #[cfg(debug_assertions)]
     {
         dbg!(payload.plain_text());
         dbg!(payload.binary());
     }
-
-    println!("Selected {}", target_file);
 }

@@ -2,8 +2,9 @@ use image::{DynamicImage, ImageBuffer, ImageError, ImageReader, Rgba};
 
 //Custom types
 type ImageMatrix = Vec<ImageRow>;
-type Pixel = [u8; 4];
 type ImageRow = Vec<Pixel>;
+type Pixel = [u8; 4];
+type Binary = Vec<u8>;
 
 pub struct Image {
     pixel_matrix: ImageMatrix,
@@ -23,12 +24,6 @@ impl Image {
     pub fn load_image(&mut self, target_file: &str) -> Result<(), ImageError> {
         let (image, width, height) = image_reader(target_file)?;
 
-        #[cfg(debug_assertions)]
-        {
-            println!("Success!");
-            dbg!(&image);
-        }
-
         self.pixel_matrix = image;
         self.width = width;
         self.height = height;
@@ -37,6 +32,24 @@ impl Image {
         debug_image(&self.pixel_matrix);
 
         Ok(())
+    }
+
+    pub fn insert_hidden_message(&mut self, payload: &Binary) {
+        let image = &mut self.pixel_matrix;
+        let mut payload_copy = payload.clone();
+        for row in image.iter_mut() {
+            for pixel in row.iter_mut() {
+                for channel in 0..3 {
+                    if payload_copy.len() == 0 {
+                        #[cfg(debug_assertions)]
+                        debug_image(&image);
+
+                        return;
+                    }
+                    pixel[channel] = payload_copy.pop().unwrap();
+                }
+            }
+        }
     }
 }
 
