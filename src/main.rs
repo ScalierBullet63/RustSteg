@@ -1,3 +1,4 @@
+mod errors;
 mod image;
 mod payload;
 
@@ -38,7 +39,10 @@ fn main() {
     let mut payload = Payload::new();
     payload.set_plain_text(hidden_message);
 
-    image.insert_hidden_message(payload.binary());
+    match image.insert_hidden_message(payload.binary()) {
+        Ok(()) => println!("Message hidden successfully"),
+        Err(e) => println!("Error: {e}"),
+    }
 
     #[cfg(debug_assertions)]
     {

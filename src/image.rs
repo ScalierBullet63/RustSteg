@@ -1,3 +1,4 @@
+use crate::errors::NotEnoughBits;
 use image::{DynamicImage, ImageBuffer, ImageError, ImageReader, Rgba};
 
 //Custom types
@@ -34,7 +35,8 @@ impl Image {
         Ok(())
     }
 
-    pub fn insert_hidden_message(&mut self, payload: &Binary) {
+    pub fn insert_hidden_message(&mut self, payload: &Binary) -> Result<(), NotEnoughBits> {
+        self.are_bits_enough(payload)?;
         let image = &mut self.pixel_matrix;
         let mut payload_copy = payload.clone();
         for row in image.iter_mut() {
@@ -44,12 +46,20 @@ impl Image {
                         #[cfg(debug_assertions)]
                         debug_image(image);
 
-                        return;
+                        return Ok(());
                     }
                     *channel = payload_copy.pop().unwrap();
                 }
             }
         }
+        Ok(())
+    }
+
+    fn are_bits_enough(&self, payload: &Binary) -> Result<(), NotEnoughBits> {
+        if (self.height * self.width) * 3 < payload.len() as u32 {
+            return Err(NotEnoughBits);
+        }
+        Ok(())
     }
 }
 
