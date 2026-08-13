@@ -25,14 +25,14 @@ fn main() {
     let target_file: String = args.target_file;
     let hidden_message: String = args.msg;
 
-    println!("Selected {}", &target_file);
+    println!("Selected {}", target_file);
 
     //Process image
     let mut image = Image::new();
     match image.load_image(&target_file) {
         Ok(()) => println!("Image loaded successfully"),
         Err(e) => println!("Error: {e}"),
-    };
+    }
 
     //Process payload
     let mut payload = Payload::new();

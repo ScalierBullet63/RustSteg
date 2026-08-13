@@ -39,14 +39,14 @@ impl Image {
         let mut payload_copy = payload.clone();
         for row in image.iter_mut() {
             for pixel in row.iter_mut() {
-                for channel in 0..3 {
-                    if payload_copy.len() == 0 {
+                for channel in pixel.iter_mut().take(3) {
+                    if payload_copy.is_empty() {
                         #[cfg(debug_assertions)]
-                        debug_image(&image);
+                        debug_image(image);
 
                         return;
                     }
-                    pixel[channel] = payload_copy.pop().unwrap();
+                    *channel = payload_copy.pop().unwrap();
                 }
             }
         }
