@@ -44,6 +44,11 @@ fn main() {
         Err(e) => println!("Error: {e}"),
     }
 
+    match image.save_image() {
+        Ok(()) => println!("Image saved successfully"),
+        Err(e) => println!("Error: {e}"),
+    }
+
     #[cfg(debug_assertions)]
     {
         dbg!(payload.plain_text());

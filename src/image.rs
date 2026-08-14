@@ -9,6 +9,7 @@ type Binary = Vec<u8>;
 
 pub struct Image {
     pixel_matrix: ImageMatrix,
+    source_path: String,
     width: u32,
     height: u32,
 }
@@ -17,6 +18,7 @@ impl Image {
     pub fn new() -> Self {
         Self {
             pixel_matrix: ImageMatrix::new(),
+            source_path: String::new(),
             width: 0,
             height: 0,
         }
@@ -26,6 +28,7 @@ impl Image {
         let (image, width, height) = image_reader(target_file)?;
 
         self.pixel_matrix = image;
+        self.source_path = target_file.to_string();
         self.width = width;
         self.height = height;
 
@@ -52,6 +55,36 @@ impl Image {
                 }
             }
         }
+        Ok(())
+    }
+
+    pub fn save_image(&self) -> Result<(), ImageError> {
+        let mut image_buffer: ImageBuffer<Rgba<u8>, Vec<u8>> =
+            ImageBuffer::new(self.width, self.height);
+        let mut flat_pixel_matrix: Vec<u8> = Vec::new();
+
+        for row in self.pixel_matrix.iter() {
+            for pixel in row.iter() {
+                for channel in pixel.iter() {
+                    flat_pixel_matrix.push(*channel);
+                }
+            }
+        }
+
+        for (dst, src) in image_buffer.iter_mut().zip(&flat_pixel_matrix) {
+            *dst = *src;
+        }
+
+        let mut output_path = self.source_path.to_string();
+
+        if let Some(point_pos) = self.source_path.rfind(".") {
+            output_path.truncate(point_pos);
+            output_path += "_steg.";
+            let extension = &self.source_path[&point_pos + 1..];
+            output_path += extension;
+        }
+
+        image_buffer.save(output_path)?;
         Ok(())
     }
 
