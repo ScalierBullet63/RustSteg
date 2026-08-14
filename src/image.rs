@@ -1,4 +1,4 @@
-use crate::errors::NotEnoughBits;
+use crate::errors::StegError;
 use image::{DynamicImage, ImageBuffer, ImageError, ImageReader, Rgba};
 
 //Custom types
@@ -38,24 +38,46 @@ impl Image {
         Ok(())
     }
 
-    pub fn insert_hidden_message(&mut self, payload: &Binary) -> Result<(), NotEnoughBits> {
+    pub fn insert_hidden_message(&mut self, payload: &Binary) -> Result<(), StegError> {
         self.are_bits_enough(payload)?;
         let image = &mut self.pixel_matrix;
-        let mut payload_copy = payload.clone();
+        let mut bits = payload.iter();
+
         for row in image.iter_mut() {
             for pixel in row.iter_mut() {
                 for channel in pixel.iter_mut().take(3) {
-                    if payload_copy.is_empty() {
+                    let Some(next_bit) = bits.next() else {
                         #[cfg(debug_assertions)]
                         debug_image(image);
 
                         return Ok(());
+                    };
+
+                    match next_bit {
+                        0 => {
+                            if channel.is_multiple_of(2) {
+                                continue;
+                            } else {
+                                if *channel == 255 {
+                                    *channel -= 1;
+                                } else {
+                                    *channel += 1;
+                                }
+                            }
+                        }
+                        1 => {
+                            if !channel.is_multiple_of(2) {
+                                continue;
+                            } else {
+                                *channel += 1;
+                            }
+                        }
+                        _ => return Err(StegError::UnexpectedError),
                     }
-                    *channel = payload_copy.pop().unwrap();
                 }
             }
         }
-        Ok(())
+        Err(StegError::UnexpectedError)
     }
 
     pub fn save_image(&self) -> Result<(), ImageError> {
@@ -88,9 +110,9 @@ impl Image {
         Ok(())
     }
 
-    fn are_bits_enough(&self, payload: &Binary) -> Result<(), NotEnoughBits> {
+    fn are_bits_enough(&self, payload: &Binary) -> Result<(), StegError> {
         if (self.height * self.width) * 3 < payload.len() as u32 {
-            return Err(NotEnoughBits);
+            return Err(StegError::NotEnoughBits);
         }
         Ok(())
     }

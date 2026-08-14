@@ -32,7 +32,10 @@ fn main() {
     let mut image = Image::new();
     match image.load_image(&target_file) {
         Ok(()) => println!("Image loaded successfully"),
-        Err(e) => println!("Error: {e}"),
+        Err(e) => {
+            println!("Error: {e}");
+            return;
+        }
     }
 
     //Process payload
@@ -41,12 +44,18 @@ fn main() {
 
     match image.insert_hidden_message(payload.binary()) {
         Ok(()) => println!("Message hidden successfully"),
-        Err(e) => println!("Error: {e}"),
+        Err(e) => {
+            println!("Error: {e}");
+            return;
+        }
     }
 
     match image.save_image() {
         Ok(()) => println!("Image saved successfully"),
-        Err(e) => println!("Error: {e}"),
+        Err(e) => {
+            println!("Error: {e}");
+            return;
+        }
     }
 
     #[cfg(debug_assertions)]

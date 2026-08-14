@@ -1,12 +1,18 @@
 use std::{error::Error, fmt};
 
 #[derive(Debug)]
-pub struct NotEnoughBits;
+pub enum StegError {
+    NotEnoughBits,
+    UnexpectedError,
+}
 
-impl Error for NotEnoughBits {}
+impl Error for StegError {}
 
-impl fmt::Display for NotEnoughBits {
+impl fmt::Display for StegError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "Not enough bits in the image")
+        match self {
+            StegError::NotEnoughBits => write!(f, "Not enough bits in the image"),
+            StegError::UnexpectedError => write!(f, "Unexpected error"),
+        }
     }
 }
