@@ -1,4 +1,4 @@
-use crate::errors::StegError;
+use crate::{errors::StegError, payload::Payload};
 use image::{DynamicImage, ImageBuffer, ImageError, ImageReader, Rgba};
 
 //Custom types
@@ -38,10 +38,11 @@ impl Image {
         Ok(())
     }
 
-    pub fn insert_hidden_message(&mut self, payload: &Binary) -> Result<(), StegError> {
-        self.are_bits_enough(payload)?;
+    pub fn insert_hidden_message(&mut self, payload: Payload) -> Result<(), StegError> {
+        let bits = payload.into_bits();
+        self.are_bits_enough(&bits)?;
+        let mut bits = bits.iter();
         let image = &mut self.pixel_matrix;
-        let mut bits = payload.iter();
 
         for row in image.iter_mut() {
             for pixel in row.iter_mut() {
@@ -110,8 +111,8 @@ impl Image {
         Ok(())
     }
 
-    fn are_bits_enough(&self, payload: &Binary) -> Result<(), StegError> {
-        if (self.height * self.width) * 3 < payload.len() as u32 {
+    fn are_bits_enough(&self, bits: &Binary) -> Result<(), StegError> {
+        if (self.height * self.width) * 3 < bits.len() as u32 {
             return Err(StegError::NotEnoughBits);
         }
         Ok(())
