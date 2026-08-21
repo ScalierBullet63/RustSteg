@@ -107,15 +107,18 @@ impl Payload {
         bytes.push(self.header.flags.bits());
         bytes.extend_from_slice(&self.header.length.to_be_bytes());
         bytes.extend_from_slice(&self.hidden_message);
+        bytes.extend_from_slice(&self.auth_tag);
 
         //Vec of bits
-        let mut bits = Binary::new();
+        let mut bits = Binary::with_capacity(bytes.len() * 8);
         for mut byte in bytes {
             for _ in 0..8 {
                 bits.push(byte % 2);
                 byte /= 2;
             }
         }
+
+        bits.reverse();
 
         bits
     }

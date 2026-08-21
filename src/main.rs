@@ -32,7 +32,7 @@ fn main() {
 
     println!("Selected {}", target_file);
 
-    // Load image
+    //Load image
     let mut image = Image::new();
     match image.load_image(&target_file) {
         Ok(()) => println!("Image loaded successfully"),
