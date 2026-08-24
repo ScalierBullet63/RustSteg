@@ -56,20 +56,17 @@ impl Payload {
         }
     }
 
-    pub fn set_hidden_message(&mut self, plaintext: String) -> Result<&str, StegError> {
-        let output_message: &str;
-
+    pub fn set_hidden_message(&mut self, plaintext: String) -> Result<(), StegError> {
         if self.header.flags.contains(Flags::ENCRYPTED) {
             let (ciphertext, auth_tag) = self.encrypt_hidden_message(plaintext)?;
             self.hidden_message = ciphertext.to_vec();
             self.auth_tag = auth_tag.to_vec();
-            output_message = "Message encrypted successfully";
         } else {
             self.hidden_message = plaintext.as_bytes().to_vec();
-            output_message = "Message saved successfully";
         }
         self.header.length = self.hidden_message.len() as u32;
-        Ok(output_message)
+
+        Ok(())
     }
 
     fn encrypt_hidden_message(

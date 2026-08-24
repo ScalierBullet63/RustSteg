@@ -1,5 +1,5 @@
 use crate::{errors::StegError, payload::Payload};
-use image::{DynamicImage, ImageBuffer, ImageError, ImageReader, Rgba};
+use image::{DynamicImage, ImageBuffer, ImageReader, Rgba};
 
 //Custom types
 type ImageMatrix = Vec<ImageRow>;
@@ -24,7 +24,7 @@ impl Image {
         }
     }
 
-    pub fn load_image(&mut self, target_file: &str) -> Result<(), ImageError> {
+    pub fn load_image(&mut self, target_file: &str) -> Result<(), StegError> {
         let (image, width, height) = image_reader(target_file)?;
 
         self.pixel_matrix = image;
@@ -81,7 +81,7 @@ impl Image {
         Err(StegError::UnexpectedError)
     }
 
-    pub fn save_image(&self) -> Result<(), ImageError> {
+    pub fn save_image(&self) -> Result<(), StegError> {
         let mut image_buffer: ImageBuffer<Rgba<u8>, Vec<u8>> =
             ImageBuffer::new(self.width, self.height);
         let mut flat_pixel_matrix: Vec<u8> = Vec::new();
@@ -119,7 +119,7 @@ impl Image {
     }
 }
 
-fn image_reader(target_file: &str) -> Result<(ImageMatrix, u32, u32), ImageError> {
+fn image_reader(target_file: &str) -> Result<(ImageMatrix, u32, u32), StegError> {
     let img: DynamicImage = ImageReader::open(target_file)?.decode()?;
 
     let rgba_image: ImageBuffer<Rgba<u8>, Vec<u8>> = img.to_rgba8();
