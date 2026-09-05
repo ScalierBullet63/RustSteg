@@ -1,4 +1,7 @@
-use crate::{errors::StegError, payload::Payload};
+use crate::{
+    errors::StegError,
+    payload::{Flags, Payload},
+};
 use image::{DynamicImage, ImageBuffer, ImageReader, Rgba};
 
 //Custom types
@@ -81,18 +84,34 @@ impl Image {
         Err(StegError::UnexpectedError)
     }
 
+    pub fn get_payload_from_image(self) -> Result<Payload, StegError> {
+        let extracted_payload = Payload::new(Flags::NONE); //Farlo alla fine!!!
+        let image = self.pixel_matrix;
+
+        //Init all vecs
+        let mut magic: Vec<u8> = Vec::with_capacity(8);
+        let mut version: u8 = 0;
+        let mut flags: u8 = 0;
+        let mut salt: Vec<u8> = Vec::with_capacity(16);
+        let mut nonce: Vec<u8> = Vec::with_capacity(24); //Verify
+        let mut lenth: u32 = 0;
+
+        //Get magic
+        let _ = get_n_bits(&image, 1, 8);
+        todo!("Return payload");
+    }
+
     pub fn save_image(&self) -> Result<(), StegError> {
         let mut image_buffer: ImageBuffer<Rgba<u8>, Vec<u8>> =
             ImageBuffer::new(self.width, self.height);
-        let mut flat_pixel_matrix: Vec<u8> = Vec::new();
 
-        for row in self.pixel_matrix.iter() {
-            for pixel in row.iter() {
-                for channel in pixel.iter() {
-                    flat_pixel_matrix.push(*channel);
-                }
-            }
-        }
+        let flat_pixel_matrix: Vec<u8> = self
+            .pixel_matrix
+            .iter()
+            .flat_map(|row| row.iter())
+            .flat_map(|pixel| pixel.iter())
+            .copied()
+            .collect();
 
         for (dst, src) in image_buffer.iter_mut().zip(&flat_pixel_matrix) {
             *dst = *src;
@@ -137,6 +156,35 @@ fn image_reader(target_file: &str) -> Result<(ImageMatrix, u32, u32), StegError>
     }
 
     Ok((rgba_image_matrix, width, height))
+}
+
+//Get bytes?
+fn get_n_bits(image: &ImageMatrix, start_n: usize, n: usize) -> Vec<u8> {
+    let buffer: Vec<u8> = image
+        .iter()
+        .flat_map(|row| row.iter())
+        .flat_map(|pixel| pixel.iter().take(3))
+        .skip(start_n)
+        .take(n)
+        .copied()
+        .collect();
+
+    dbg!(&[1u8; 8]);
+    dbg!(to_byte(&[1u8; 8].to_vec()));
+
+    dbg!(&buffer);
+    return buffer;
+}
+
+//Use this
+fn to_byte(bits: &Vec<u8>) -> u8 {
+    let mut byte: u8 = 0;
+    let mut exp: u8 = 7;
+    for bit in bits {
+        byte += bit * u8::pow(2, exp as u32);
+        exp -= 1;
+    }
+    byte
 }
 
 #[cfg(debug_assertions)]
