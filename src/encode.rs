@@ -3,8 +3,6 @@ use crate::image::Image;
 use crate::payload::{Flags, Payload};
 
 pub fn encode(target_file: String, hidden_message: String, encrypt: bool) -> Result<(), StegError> {
-    println!("Selected {}", target_file);
-
     //Load image
     let mut image = Image::new();
     match image.load_image(&target_file) {
