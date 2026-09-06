@@ -127,6 +127,10 @@ c = "job:clippy-all" # comment this to have 'c' run clippy on only the default t
 p = "job:pedantic"
 
 # My Jobs
-[jobs.debug]
-command = ["cargo", "run", "--", "-t", "./debug/image.png", "-m", "Test"]
+[jobs.encode-debug]
+command = ["cargo", "run", "--", "encode", "-t", "./debug/image.png", "-m", "Test"]
+need_stdout = true
+
+[jobs.decode-debug]
+command = ["cargo", "run", "--", "decode", "-t", "./debug/image.png"]
 need_stdout = true

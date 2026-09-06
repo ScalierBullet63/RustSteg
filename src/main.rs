@@ -1,3 +1,4 @@
+mod decode;
 mod encode;
 mod errors;
 mod image;
@@ -31,6 +32,13 @@ enum Commands {
         #[arg(long)]
         encrypt: bool,
     },
+
+    ///Find the message inside an image
+    Decode {
+        /// Target file
+        #[arg(short, long)]
+        target_file: String,
+    },
 }
 
 fn main() -> Result<(), StegError> {
@@ -42,6 +50,7 @@ fn main() -> Result<(), StegError> {
             msg,
             encrypt,
         } => encode::encode(target_file, msg, encrypt)?,
+        Commands::Decode { target_file } => decode::decode(target_file)?,
     }
 
     Ok(())
