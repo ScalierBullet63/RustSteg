@@ -1,8 +1,9 @@
-use crate::{
-    errors::StegError,
-    payload::{Flags, Payload},
-};
+use crate::errors::StegError;
 use image::{DynamicImage, ImageBuffer, ImageReader, Rgba};
+
+mod decode;
+mod encode;
+mod utils;
 
 //Custom types
 type ImageMatrix = Vec<ImageRow>;
@@ -36,69 +37,9 @@ impl Image {
         self.height = height;
 
         #[cfg(debug_assertions)]
-        debug_image(&self.pixel_matrix);
+        utils::debug_image(&self.pixel_matrix);
 
         Ok(())
-    }
-
-    pub fn insert_hidden_message(&mut self, payload: Payload) -> Result<(), StegError> {
-        let bits = payload.into_bits();
-        self.are_bits_enough(&bits)?;
-        let mut bits = bits.iter();
-        let image = &mut self.pixel_matrix;
-
-        for row in image.iter_mut() {
-            for pixel in row.iter_mut() {
-                for channel in pixel.iter_mut().take(3) {
-                    let Some(next_bit) = bits.next() else {
-                        #[cfg(debug_assertions)]
-                        debug_image(image);
-
-                        return Ok(());
-                    };
-
-                    match next_bit {
-                        0 => {
-                            if channel.is_multiple_of(2) {
-                                continue;
-                            } else {
-                                if *channel == 255 {
-                                    *channel -= 1;
-                                } else {
-                                    *channel += 1;
-                                }
-                            }
-                        }
-                        1 => {
-                            if !channel.is_multiple_of(2) {
-                                continue;
-                            } else {
-                                *channel += 1;
-                            }
-                        }
-                        _ => return Err(StegError::UnexpectedError),
-                    }
-                }
-            }
-        }
-        Err(StegError::UnexpectedError)
-    }
-
-    pub fn get_payload_from_image(self) -> Result<Payload, StegError> {
-        let extracted_payload = Payload::new(Flags::NONE); //Farlo alla fine!!!
-        let image = self.pixel_matrix;
-
-        //Init all vecs
-        let mut magic: Vec<u8> = Vec::with_capacity(8);
-        let mut version: u8 = 0;
-        let mut flags: u8 = 0;
-        let mut salt: Vec<u8> = Vec::with_capacity(16);
-        let mut nonce: Vec<u8> = Vec::with_capacity(24); //Verify
-        let mut lenth: u32 = 0;
-
-        //Get magic
-        let _ = get_n_bits(&image, 1, 8);
-        todo!("Return payload");
     }
 
     pub fn save_image(&self) -> Result<(), StegError> {
@@ -129,13 +70,6 @@ impl Image {
         image_buffer.save(output_path)?;
         Ok(())
     }
-
-    fn are_bits_enough(&self, bits: &Binary) -> Result<(), StegError> {
-        if (self.height * self.width) * 3 < bits.len() as u32 {
-            return Err(StegError::NotEnoughBits);
-        }
-        Ok(())
-    }
 }
 
 fn image_reader(target_file: &str) -> Result<(ImageMatrix, u32, u32), StegError> {
@@ -156,45 +90,4 @@ fn image_reader(target_file: &str) -> Result<(ImageMatrix, u32, u32), StegError>
     }
 
     Ok((rgba_image_matrix, width, height))
-}
-
-//Get bytes?
-fn get_n_bits(image: &ImageMatrix, start_n: usize, n: usize) -> Vec<u8> {
-    let buffer: Vec<u8> = image
-        .iter()
-        .flat_map(|row| row.iter())
-        .flat_map(|pixel| pixel.iter().take(3))
-        .skip(start_n)
-        .take(n)
-        .copied()
-        .collect();
-
-    dbg!(&[1u8; 8]);
-    dbg!(to_byte(&[1u8; 8].to_vec()));
-
-    dbg!(&buffer);
-    return buffer;
-}
-
-//Use this
-fn to_byte(bits: &Vec<u8>) -> u8 {
-    let mut byte: u8 = 0;
-    let mut exp: u8 = 7;
-    for bit in bits {
-        byte += bit * u8::pow(2, exp as u32);
-        exp -= 1;
-    }
-    byte
-}
-
-#[cfg(debug_assertions)]
-fn debug_image(img: &ImageMatrix) {
-    for y in img.iter() {
-        for pixel in y {
-            print!("Red: {:?} ", pixel[0]);
-            print!("Green: {:?} ", pixel[1]);
-            println!("Blue: {:?}", pixel[2]);
-        }
-        println!();
-    }
 }
