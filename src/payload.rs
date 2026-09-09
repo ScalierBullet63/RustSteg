@@ -99,9 +99,9 @@ impl Payload {
         let mut bytes = Binary::new();
         bytes.extend_from_slice(&self.header.magic);
         bytes.push(self.header.version);
+        bytes.push(self.header.flags.bits());
         bytes.extend_from_slice(&self.header.salt);
         bytes.extend_from_slice(&self.header.nonce);
-        bytes.push(self.header.flags.bits());
         bytes.extend_from_slice(&self.header.length.to_be_bytes());
         bytes.extend_from_slice(&self.hidden_message);
         bytes.extend_from_slice(&self.auth_tag);
