@@ -100,11 +100,18 @@ impl Payload {
         bytes.extend_from_slice(&self.header.magic);
         bytes.push(self.header.version);
         bytes.push(self.header.flags.bits());
-        bytes.extend_from_slice(&self.header.salt);
-        bytes.extend_from_slice(&self.header.nonce);
+
+        if self.header.flags.contains(Flags::ENCRYPTED) {
+            bytes.extend_from_slice(&self.header.salt);
+            bytes.extend_from_slice(&self.header.nonce);
+        }
+
         bytes.extend_from_slice(&self.header.length.to_be_bytes());
         bytes.extend_from_slice(&self.hidden_message);
-        bytes.extend_from_slice(&self.auth_tag);
+
+        if self.header.flags.contains(Flags::ENCRYPTED) {
+            bytes.extend_from_slice(&self.auth_tag);
+        }
 
         //Vec of bits (Big Endian)
         let bits: Vec<u8> = bytes
