@@ -44,6 +44,15 @@ enum Commands {
 fn main() -> Result<(), StegError> {
     let args: Args = Args::parse();
 
+    match run(args) {
+        Err(e) => println!("Error: {e}"),
+        Ok(()) => (),
+    };
+
+    Ok(())
+}
+
+fn run(args: Args) -> Result<(), StegError> {
     match args.commands {
         Commands::Encode {
             target_file,
