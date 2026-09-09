@@ -1,40 +1,44 @@
 use super::{Byte, Image, utils};
-use crate::{
-    StegError,
-    payload::{Flags, Payload},
-};
+use crate::{StegError, payload::Flags};
 
 impl Image {
-    pub fn get_payload_from_image(&self) -> Result<Payload, StegError> {
-        //Init all vecs
-        let mut flags: u8 = 0;
+    pub fn get_payload_from_image(&self) -> Result<String, StegError> {
+        let mut length: u32 = 0;
 
-        //If flags
-        let mut salt: Vec<u8> = Vec::with_capacity(16);
-        let mut nonce: Vec<u8> = Vec::with_capacity(24);
+        check_magic(self.get_n_bytes(0, 8)?)?;
+        handle_version(
+            self.get_n_bytes(8, 1)?
+                .pop()
+                .ok_or(StegError::NotEnoughBits)?,
+        )?;
 
-        let mut lenth: u32 = 0;
+        let result = self.parse_flags(
+            Flags::from_bits(self.get_n_bytes(9, 1)?.pop().unwrap())
+                .ok_or(StegError::NotEnoughBits)?,
+        )?;
 
-        check_magic(self.get_n_bytes(0, 8))?;
-        handle_version(self.get_n_bytes(8, 1).pop().unwrap())?;
-
-        //Check ver and flags
-        dbg!(&self.pixel_matrix[0].iter().take(8).collect::<Vec<_>>());
-        todo!("Return payload");
-
-        // let extracted_payload = Payload::new(Flags::NONE);
+        todo!("Return message");
     }
 
-    fn get_n_bytes(&self, skip_n: usize, n: usize) -> Vec<Byte> {
+    fn get_n_bytes(&self, skip_n: usize, n: usize) -> Result<Vec<Byte>, StegError> {
+        let flat_lsb_matrix: Vec<u8> = self
+            .pixel_matrix
+            .iter()
+            .flat_map(|row| row.iter())
+            .flat_map(|pixel| pixel.iter().take(3).copied())
+            .map(|channel| channel & 1)
+            .collect();
+
+        if flat_lsb_matrix.len() < (skip_n + n) * 8 {
+            return Err(StegError::NotEnoughBits);
+        }
+
         let mut buffer: Vec<Byte> = Vec::with_capacity(n);
 
         for shift in 0..n {
-            let bits: Vec<u8> = self
-                .pixel_matrix
+            let bits: Vec<u8> = flat_lsb_matrix
                 .iter()
-                .flat_map(|row| row.iter())
-                .flat_map(|pixel| pixel.iter().take(3))
-                .skip(skip_n * 8 + shift * 8)
+                .skip((skip_n + shift) * 8)
                 .take(8)
                 .copied()
                 .collect();
@@ -42,7 +46,19 @@ impl Image {
             buffer.push(utils::to_byte(&bits));
         }
 
-        return buffer;
+        Ok(buffer)
+    }
+
+    fn parse_flags(&self, flags: Flags) -> Result<Option<(Vec<u8>, Vec<u8>)>, StegError> {
+        match flags {
+            Flags::NONE => Ok(None),
+            Flags::ENCRYPTED => {
+                let salt: Vec<u8> = self.get_n_bytes(10, 16)?;
+                let nonce: Vec<u8> = self.get_n_bytes(26, 24)?;
+                Ok(Some((salt, nonce)))
+            }
+            _ => Err(StegError::UnsupportedFlag),
+        }
     }
 }
 
