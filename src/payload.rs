@@ -106,16 +106,11 @@ impl Payload {
         bytes.extend_from_slice(&self.hidden_message);
         bytes.extend_from_slice(&self.auth_tag);
 
-        //Vec of bits
-        let mut bits = Binary::with_capacity(bytes.len() * 8);
-        for mut byte in bytes {
-            for _ in 0..8 {
-                bits.push(byte % 2);
-                byte /= 2;
-            }
-        }
-
-        bits.reverse();
+        //Vec of bits (Big Endian)
+        let bits: Vec<u8> = bytes
+            .iter()
+            .flat_map(|byte| (0..8).rev().map(move |i| (byte >> i) & 1))
+            .collect();
 
         bits
     }
