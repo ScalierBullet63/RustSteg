@@ -1,42 +1,61 @@
-use super::{Image, ImageMatrix, utils};
+use super::{Byte, Image, utils};
 use crate::{
     StegError,
     payload::{Flags, Payload},
 };
 
 impl Image {
-    pub fn get_payload_from_image(self) -> Result<Payload, StegError> {
-        let extracted_payload = Payload::new(Flags::NONE); //Farlo alla fine!!!
-        let image = self.pixel_matrix;
-
+    pub fn get_payload_from_image(&self) -> Result<Payload, StegError> {
         //Init all vecs
-        let mut magic: Vec<u8> = Vec::with_capacity(8);
-        let mut version: u8 = 0;
         let mut flags: u8 = 0;
+
+        //If flags
         let mut salt: Vec<u8> = Vec::with_capacity(16);
-        let mut nonce: Vec<u8> = Vec::with_capacity(24); //Verify
+        let mut nonce: Vec<u8> = Vec::with_capacity(24);
+
         let mut lenth: u32 = 0;
 
-        //Get magic
-        let _ = get_n_bits(&image, 1, 8);
+        check_magic(self.get_n_bytes(0, 8))?;
+        handle_version(self.get_n_bytes(8, 1).pop().unwrap())?;
+
+        //Check ver and flags
+        dbg!(&self.pixel_matrix[0].iter().take(8).collect::<Vec<_>>());
         todo!("Return payload");
+
+        // let extracted_payload = Payload::new(Flags::NONE);
+    }
+
+    fn get_n_bytes(&self, skip_n: usize, n: usize) -> Vec<Byte> {
+        let mut buffer: Vec<Byte> = Vec::with_capacity(n);
+
+        for shift in 0..n {
+            let bits: Vec<u8> = self
+                .pixel_matrix
+                .iter()
+                .flat_map(|row| row.iter())
+                .flat_map(|pixel| pixel.iter().take(3))
+                .skip(skip_n * 8 + shift * 8)
+                .take(8)
+                .copied()
+                .collect();
+
+            buffer.push(utils::to_byte(&bits));
+        }
+
+        return buffer;
     }
 }
 
-//Get bytes?
-fn get_n_bits(image: &ImageMatrix, start_n: usize, n: usize) -> Vec<u8> {
-    let buffer: Vec<u8> = image
-        .iter()
-        .flat_map(|row| row.iter())
-        .flat_map(|pixel| pixel.iter().take(3))
-        .skip(start_n)
-        .take(n)
-        .copied()
-        .collect();
+fn check_magic(magic: Vec<Byte>) -> Result<(), StegError> {
+    if &utils::to_ascii(magic) != "RUSTSTEG" {
+        return Err(StegError::NotRustStegFile);
+    }
+    Ok(())
+}
 
-    dbg!(&[1u8; 8]);
-    dbg!(utils::to_byte(&[1u8; 8].to_vec()));
-
-    dbg!(&buffer);
-    return buffer;
+fn handle_version(version: u8) -> Result<(), StegError> {
+    match version {
+        1 => return Ok(()),
+        _ => return Err(StegError::PayloadVersionNotSupported),
+    }
 }

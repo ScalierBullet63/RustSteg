@@ -4,6 +4,8 @@ use std::{error::Error, fmt};
 pub enum StegError {
     NotEnoughBits,
     UnexpectedError,
+    NotRustStegFile,
+    PayloadVersionNotSupported,
     IoError(std::io::Error),
     ImageError(image::ImageError),
     ChaCha20Error(chacha20poly1305::aead::Error),
@@ -17,6 +19,10 @@ impl fmt::Display for StegError {
         match self {
             StegError::NotEnoughBits => write!(f, "Not enough bits in the image"),
             StegError::UnexpectedError => write!(f, "Unexpected error"),
+            StegError::NotRustStegFile => write!(f, "This file seem not encoded with RustSteg"),
+            StegError::PayloadVersionNotSupported => {
+                write!(f, "This payload version isn't supported yet")
+            }
             StegError::IoError(e) => write!(f, "Io error: {e}"),
             StegError::ImageError(e) => write!(f, "Image error: {e}"),
             StegError::ChaCha20Error(e) => write!(f, "ChaCha20 error: {e}"),

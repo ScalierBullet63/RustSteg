@@ -1,3 +1,5 @@
+use super::Binary;
+
 #[cfg(debug_assertions)]
 use super::ImageMatrix;
 
@@ -9,6 +11,14 @@ pub fn to_byte(bits: &Vec<u8>) -> u8 {
         exp -= 1;
     }
     byte
+}
+
+pub fn to_ascii(bytes: Binary) -> String {
+    let mut string = String::new();
+    for byte in bytes {
+        string.push(byte as char);
+    }
+    string
 }
 
 #[cfg(debug_assertions)]
