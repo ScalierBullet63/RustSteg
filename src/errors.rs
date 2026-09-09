@@ -5,9 +5,11 @@ pub enum StegError {
     NotEnoughBits,
     UnexpectedError,
     NotRustStegFile,
-    PayloadVersionNotSupported,
+    UnsupportedPayloadVersion,
+    InvalidFlags,
     UnsupportedFlag,
     IoError(std::io::Error),
+    TryFromSliceError(std::array::TryFromSliceError),
     ImageError(image::ImageError),
     ChaCha20Error(chacha20poly1305::aead::Error),
     Argon2Error(argon2::Error),
@@ -23,11 +25,13 @@ impl fmt::Display for StegError {
             StegError::NotRustStegFile => {
                 write!(f, "This file doesn't seem to be encoded with RustSteg")
             }
-            StegError::PayloadVersionNotSupported => {
+            StegError::UnsupportedPayloadVersion => {
                 write!(f, "This payload version isn't supported yet")
             }
+            StegError::InvalidFlags => write!(f, "Invalid flags"),
             StegError::UnsupportedFlag => write!(f, "Unsupported playlaod flag"),
             StegError::IoError(e) => write!(f, "Io error: {e}"),
+            StegError::TryFromSliceError(e) => write!(f, "TryFromVec error: {e}"),
             StegError::ImageError(e) => write!(f, "Image error: {e}"),
             StegError::ChaCha20Error(e) => write!(f, "ChaCha20 error: {e}"),
             StegError::Argon2Error(e) => write!(f, "Argon2 error: {e}"),
@@ -44,6 +48,12 @@ impl From<std::io::Error> for StegError {
 impl From<image::ImageError> for StegError {
     fn from(error: image::ImageError) -> Self {
         StegError::ImageError(error)
+    }
+}
+
+impl From<std::array::TryFromSliceError> for StegError {
+    fn from(error: std::array::TryFromSliceError) -> Self {
+        StegError::TryFromSliceError(error)
     }
 }
 

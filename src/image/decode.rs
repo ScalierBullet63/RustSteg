@@ -3,8 +3,6 @@ use crate::{StegError, payload::Flags};
 
 impl Image {
     pub fn get_payload_from_image(&self) -> Result<String, StegError> {
-        let mut length: u32 = 0;
-
         check_magic(self.get_n_bytes(0, 8)?)?;
         handle_version(
             self.get_n_bytes(8, 1)?
@@ -12,10 +10,18 @@ impl Image {
                 .ok_or(StegError::NotEnoughBits)?,
         )?;
 
-        let result = self.parse_flags(
-            Flags::from_bits(self.get_n_bytes(9, 1)?.pop().unwrap())
-                .ok_or(StegError::NotEnoughBits)?,
+        let salt_nonce_opt = self.parse_flags(
+            Flags::from_bits(
+                self.get_n_bytes(9, 1)?
+                    .pop()
+                    .ok_or(StegError::NotEnoughBits)?,
+            )
+            .ok_or(StegError::InvalidFlags)?,
         )?;
+
+        let plain_message = self.get_message(salt_nonce_opt)?;
+
+        dbg!(plain_message);
 
         todo!("Return message");
     }
@@ -60,6 +66,22 @@ impl Image {
             _ => Err(StegError::UnsupportedFlag),
         }
     }
+
+    fn get_message(&self, salt_nonce_opt: Option<(Vec<u8>, Vec<u8>)>) -> Result<String, StegError> {
+        match salt_nonce_opt {
+            Some((salt, nonce)) => {
+                let length: u32 =
+                    u32::from_be_bytes(self.get_n_bytes(50, 4)?.as_slice().try_into()?);
+                todo!("Implement decrypt");
+            }
+            None => {
+                let length: u32 =
+                    u32::from_be_bytes(self.get_n_bytes(10, 4)?.as_slice().try_into()?);
+                let message_bytes = self.get_n_bytes(14, length as usize)?;
+                return Ok(utils::to_ascii(message_bytes));
+            }
+        }
+    }
 }
 
 fn check_magic(magic: Vec<Byte>) -> Result<(), StegError> {
@@ -72,6 +94,6 @@ fn check_magic(magic: Vec<Byte>) -> Result<(), StegError> {
 fn handle_version(version: u8) -> Result<(), StegError> {
     match version {
         1 => return Ok(()),
-        _ => return Err(StegError::PayloadVersionNotSupported),
+        _ => return Err(StegError::UnsupportedPayloadVersion),
     }
 }
