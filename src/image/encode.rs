@@ -6,7 +6,7 @@ use super::utils;
 
 impl Image {
     pub fn insert_hidden_message(&mut self, payload: Payload) -> Result<(), StegError> {
-        let bits = payload.into_bits();
+        let bits = payload.into_bits()?;
         self.are_bits_enough(&bits)?;
         let mut bits = bits.iter();
         let image = &mut self.pixel_matrix;

@@ -21,8 +21,8 @@ struct PayloadHeader {
     magic: [u8; 8],
     version: u8,
     flags: Flags,
-    salt: [u8; 16],
-    nonce: XNonce,
+    salt: Option<[u8; 16]>,
+    nonce: Option<XNonce>,
     length: u32,
 }
 
@@ -30,13 +30,20 @@ struct PayloadHeader {
 pub struct Payload {
     header: PayloadHeader,
     hidden_message: Vec<u8>,
-    auth_tag: Vec<u8>,
+    auth_tag: Option<Vec<u8>>,
 }
 
 impl Payload {
     pub fn new(flags: Flags) -> Self {
-        let mut salt = [0u8; 16];
-        rand::rng().fill_bytes(&mut salt);
+        let (salt, nonce) = if flags.contains(Flags::ENCRYPTED) {
+            let mut salt = [0u8; 16];
+            rand::rng().fill_bytes(&mut salt);
+            let nonce = XNonce::generate();
+
+            (Some(salt), Some(nonce))
+        } else {
+            (None, None)
+        };
 
         Self {
             header: PayloadHeader {
@@ -44,11 +51,11 @@ impl Payload {
                 version: 1,
                 flags,
                 salt,
-                nonce: XNonce::generate(),
+                nonce,
                 length: 0,
             },
             hidden_message: Vec::new(),
-            auth_tag: Vec::new(),
+            auth_tag: None,
         }
     }
 }

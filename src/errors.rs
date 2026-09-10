@@ -5,6 +5,7 @@ pub enum StegError {
     NotEnoughBits,
     UnexpectedError,
     NotRustStegFile,
+    InvalidPayloadState,
     UnsupportedPayloadVersion,
     InvalidFlags,
     UnsupportedFlag,
@@ -25,6 +26,7 @@ impl fmt::Display for StegError {
             StegError::NotRustStegFile => {
                 write!(f, "This file doesn't seem to be encoded with RustSteg")
             }
+            StegError::InvalidPayloadState => write!(f, "Invalid payload state"),
             StegError::UnsupportedPayloadVersion => {
                 write!(f, "This payload version isn't supported yet")
             }
