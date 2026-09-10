@@ -10,9 +10,8 @@ pub fn decode(target_file: String) -> Result<(), StegError> {
         Err(e) => return Err(e),
     }
 
-    match image.get_payload_from_image() {
-        Ok(_extracted_payload) => (),
-        Err(e) => return Err(e),
-    }
-    todo!("Decode {target_file}")
+    let extracted_payload = image.get_payload_from_image()?;
+
+    println!("Extracted payload: {extracted_payload}");
+    Ok(())
 }

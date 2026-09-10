@@ -44,9 +44,8 @@ enum Commands {
 fn main() -> Result<(), StegError> {
     let args: Args = Args::parse();
 
-    match run(args) {
-        Err(e) => println!("Error: {e}"),
-        Ok(()) => (),
+    if let Err(e) = run(args) {
+        println!("Error: {e}");
     };
 
     Ok(())
