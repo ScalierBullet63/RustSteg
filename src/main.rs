@@ -1,3 +1,4 @@
+mod decode;
 mod encode;
 mod errors;
 mod image;
@@ -31,17 +32,33 @@ enum Commands {
         #[arg(long)]
         encrypt: bool,
     },
+
+    ///Find the message inside an image
+    Decode {
+        /// Target file
+        #[arg(short, long)]
+        target_file: String,
+    },
 }
 
 fn main() -> Result<(), StegError> {
     let args: Args = Args::parse();
 
+    if let Err(e) = run(args) {
+        println!("Error: {e}");
+    };
+
+    Ok(())
+}
+
+fn run(args: Args) -> Result<(), StegError> {
     match args.commands {
         Commands::Encode {
             target_file,
             msg,
             encrypt,
         } => encode::encode(target_file, msg, encrypt)?,
+        Commands::Decode { target_file } => decode::decode(target_file)?,
     }
 
     Ok(())

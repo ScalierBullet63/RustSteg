@@ -99,23 +99,25 @@ impl Payload {
         let mut bytes = Binary::new();
         bytes.extend_from_slice(&self.header.magic);
         bytes.push(self.header.version);
-        bytes.extend_from_slice(&self.header.salt);
-        bytes.extend_from_slice(&self.header.nonce);
         bytes.push(self.header.flags.bits());
-        bytes.extend_from_slice(&self.header.length.to_be_bytes());
-        bytes.extend_from_slice(&self.hidden_message);
-        bytes.extend_from_slice(&self.auth_tag);
 
-        //Vec of bits
-        let mut bits = Binary::with_capacity(bytes.len() * 8);
-        for mut byte in bytes {
-            for _ in 0..8 {
-                bits.push(byte % 2);
-                byte /= 2;
-            }
+        if self.header.flags.contains(Flags::ENCRYPTED) {
+            bytes.extend_from_slice(&self.header.salt);
+            bytes.extend_from_slice(&self.header.nonce);
         }
 
-        bits.reverse();
+        bytes.extend_from_slice(&self.header.length.to_be_bytes());
+        bytes.extend_from_slice(&self.hidden_message);
+
+        if self.header.flags.contains(Flags::ENCRYPTED) {
+            bytes.extend_from_slice(&self.auth_tag);
+        }
+
+        //Vec of bits (Big Endian)
+        let bits: Vec<u8> = bytes
+            .iter()
+            .flat_map(|byte| (0..8).rev().map(move |i| (byte >> i) & 1))
+            .collect();
 
         bits
     }

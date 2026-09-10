@@ -1,11 +1,16 @@
-use crate::{errors::StegError, payload::Payload};
+use crate::errors::StegError;
 use image::{DynamicImage, ImageBuffer, ImageReader, Rgba};
+
+mod decode;
+mod encode;
+mod utils;
 
 //Custom types
 type ImageMatrix = Vec<ImageRow>;
 type ImageRow = Vec<Pixel>;
 type Pixel = [u8; 4];
 type Binary = Vec<u8>;
+type Byte = u8;
 
 pub struct Image {
     pixel_matrix: ImageMatrix,
@@ -33,66 +38,22 @@ impl Image {
         self.height = height;
 
         #[cfg(debug_assertions)]
-        debug_image(&self.pixel_matrix);
+        utils::debug_image(&self.pixel_matrix);
 
         Ok(())
-    }
-
-    pub fn insert_hidden_message(&mut self, payload: Payload) -> Result<(), StegError> {
-        let bits = payload.into_bits();
-        self.are_bits_enough(&bits)?;
-        let mut bits = bits.iter();
-        let image = &mut self.pixel_matrix;
-
-        for row in image.iter_mut() {
-            for pixel in row.iter_mut() {
-                for channel in pixel.iter_mut().take(3) {
-                    let Some(next_bit) = bits.next() else {
-                        #[cfg(debug_assertions)]
-                        debug_image(image);
-
-                        return Ok(());
-                    };
-
-                    match next_bit {
-                        0 => {
-                            if channel.is_multiple_of(2) {
-                                continue;
-                            } else {
-                                if *channel == 255 {
-                                    *channel -= 1;
-                                } else {
-                                    *channel += 1;
-                                }
-                            }
-                        }
-                        1 => {
-                            if !channel.is_multiple_of(2) {
-                                continue;
-                            } else {
-                                *channel += 1;
-                            }
-                        }
-                        _ => return Err(StegError::UnexpectedError),
-                    }
-                }
-            }
-        }
-        Err(StegError::UnexpectedError)
     }
 
     pub fn save_image(&self) -> Result<(), StegError> {
         let mut image_buffer: ImageBuffer<Rgba<u8>, Vec<u8>> =
             ImageBuffer::new(self.width, self.height);
-        let mut flat_pixel_matrix: Vec<u8> = Vec::new();
 
-        for row in self.pixel_matrix.iter() {
-            for pixel in row.iter() {
-                for channel in pixel.iter() {
-                    flat_pixel_matrix.push(*channel);
-                }
-            }
-        }
+        let flat_pixel_matrix: Vec<u8> = self
+            .pixel_matrix
+            .iter()
+            .flat_map(|row| row.iter())
+            .flat_map(|pixel| pixel.iter())
+            .copied()
+            .collect();
 
         for (dst, src) in image_buffer.iter_mut().zip(&flat_pixel_matrix) {
             *dst = *src;
@@ -108,13 +69,6 @@ impl Image {
         }
 
         image_buffer.save(output_path)?;
-        Ok(())
-    }
-
-    fn are_bits_enough(&self, bits: &Binary) -> Result<(), StegError> {
-        if (self.height * self.width) * 3 < bits.len() as u32 {
-            return Err(StegError::NotEnoughBits);
-        }
         Ok(())
     }
 }
@@ -137,16 +91,4 @@ fn image_reader(target_file: &str) -> Result<(ImageMatrix, u32, u32), StegError>
     }
 
     Ok((rgba_image_matrix, width, height))
-}
-
-#[cfg(debug_assertions)]
-fn debug_image(img: &ImageMatrix) {
-    for y in img.iter() {
-        for pixel in y {
-            print!("Red: {:?} ", pixel[0]);
-            print!("Green: {:?} ", pixel[1]);
-            println!("Blue: {:?}", pixel[2]);
-        }
-        println!();
-    }
 }
