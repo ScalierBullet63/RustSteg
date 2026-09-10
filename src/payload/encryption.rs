@@ -13,8 +13,7 @@ impl Payload {
     pub fn encrypt(&self, mut plaintext: String) -> Result<(Vec<u8>, Vec<u8>), StegError> {
         let password = ask_password();
         let key = self.derive_key_from_password(password)?;
-        let mut key =
-            Key::<XChaCha20Poly1305>::try_from(&key[..]).expect("Key must be exactly 32 bytes");
+        let mut key = Key::<XChaCha20Poly1305>::try_from(&key[..])?;
         let cipher = XChaCha20Poly1305::new(&key);
         let encrypted = cipher.encrypt(
             &self.header.nonce.ok_or(StegError::InvalidPayloadState)?,
