@@ -1,4 +1,4 @@
-use super::{Binary, Flags, Payload};
+use super::{Bytes, Flags, Payload};
 use crate::errors::StegError;
 
 impl Payload {
@@ -15,9 +15,9 @@ impl Payload {
         Ok(())
     }
 
-    pub fn into_bits(self) -> Result<Binary, StegError> {
-        //Vec of bytes
-        let mut bytes = Binary::new();
+    pub fn into_bytes(self) -> Result<Bytes, StegError> {
+        let mut bytes = Bytes::new();
+
         bytes.extend_from_slice(&self.header.magic);
         bytes.push(self.header.version);
         bytes.push(self.header.flags.bits());
@@ -34,12 +34,6 @@ impl Payload {
             bytes.extend_from_slice(&self.auth_tag.ok_or(StegError::InvalidPayloadState)?);
         }
 
-        //Vec of bits (Big Endian)
-        let bits: Vec<u8> = bytes
-            .iter()
-            .flat_map(|byte| (0..8).rev().map(move |i| (byte >> i) & 1))
-            .collect();
-
-        Ok(bits)
+        Ok(bytes)
     }
 }

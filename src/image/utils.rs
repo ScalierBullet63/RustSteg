@@ -1,4 +1,4 @@
-use super::Binary;
+use super::Bytes;
 
 #[cfg(debug_assertions)]
 use super::ImageMatrix;
@@ -13,7 +13,17 @@ pub fn to_byte(bits: &Vec<u8>) -> u8 {
     byte
 }
 
-pub fn to_ascii(bytes: Binary) -> String {
+pub fn to_bits(bytes: Bytes) -> Vec<u8> {
+    //Vec of bits (Big Endian)
+    let bits: Vec<u8> = bytes
+        .iter()
+        .flat_map(|byte| (0..8).rev().map(move |i| (byte >> i) & 1))
+        .collect();
+
+    bits
+}
+
+pub fn to_ascii(bytes: Bytes) -> String {
     let mut string = String::new();
     for byte in bytes {
         string.push(byte as char);

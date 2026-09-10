@@ -6,7 +6,7 @@ use bitflags::bitflags;
 use chacha20poly1305::{XNonce, aead::Generate};
 use rand::Rng;
 
-type Binary = Vec<u8>;
+type Bytes = Vec<u8>;
 
 bitflags! {
     #[derive(Clone, Copy, Debug, Eq, PartialEq)]
@@ -29,7 +29,7 @@ struct PayloadHeader {
 #[derive(Debug)]
 pub struct Payload {
     header: PayloadHeader,
-    hidden_message: Vec<u8>,
+    hidden_message: Bytes,
     auth_tag: Option<Vec<u8>>,
 }
 
@@ -54,7 +54,7 @@ impl Payload {
                 nonce,
                 length: 0,
             },
-            hidden_message: Vec::new(),
+            hidden_message: Bytes::new(),
             auth_tag: None,
         }
     }

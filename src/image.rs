@@ -9,7 +9,7 @@ mod utils;
 type ImageMatrix = Vec<ImageRow>;
 type ImageRow = Vec<Pixel>;
 type Pixel = [u8; 4];
-type Binary = Vec<u8>;
+type Bytes = Vec<Byte>;
 type Byte = u8;
 
 pub struct Image {
