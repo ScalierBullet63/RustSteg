@@ -2,7 +2,7 @@ use super::{Bytes, Image, utils};
 use crate::{StegError, payload::Payload};
 
 impl Image {
-    pub fn insert_hidden_message(&mut self, payload: Payload) -> Result<(), StegError> {
+    pub fn encode(&mut self, payload: Payload) -> Result<(), StegError> {
         let bytes = payload.into_bytes()?;
         self.has_enough_bits(&bytes)?;
         let mut bits = utils::to_bits(bytes).into_iter();

@@ -24,7 +24,7 @@ pub fn encode(target_file: String, hidden_message: String, encrypt: bool) -> Res
     }
 
     //Process image
-    match image.insert_hidden_message(payload) {
+    match image.encode(payload) {
         Ok(()) => (),
         Err(e) => return Err(e),
     }

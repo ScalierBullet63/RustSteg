@@ -6,7 +6,7 @@ impl Payload {
         if self.header.flags.contains(Flags::ENCRYPTED) {
             let (ciphertext, auth_tag) = self.encrypt(plaintext)?;
             self.hidden_message = ciphertext.to_vec();
-            self.auth_tag = Some(auth_tag.to_vec());
+            self.auth_tag = Some(auth_tag.as_slice().try_into()?);
         } else {
             self.hidden_message = plaintext.as_bytes().to_vec();
         }

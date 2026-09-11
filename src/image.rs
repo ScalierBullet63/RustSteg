@@ -1,9 +1,9 @@
-use crate::errors::StegError;
-use image::{DynamicImage, ImageBuffer, ImageReader, Rgba};
-
 mod decode;
 mod encode;
 mod utils;
+
+use crate::errors::StegError;
+use image::{DynamicImage, ImageBuffer, ImageReader, Rgba};
 
 //Custom types
 type ImageMatrix = Vec<ImageRow>;
