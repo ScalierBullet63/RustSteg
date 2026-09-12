@@ -1,11 +1,11 @@
-use super::{Bytes, Image, utils};
+use super::{Image, utils};
 use crate::{StegError, payload::Payload};
 
 impl Image {
     pub fn encode(&mut self, payload: Payload) -> Result<(), StegError> {
         let bytes = payload.into_bytes()?;
         self.has_enough_bits(&bytes)?;
-        let mut bits = utils::to_bits(bytes).into_iter();
+        let mut bits = utils::to_bits(&bytes).into_iter();
         let image = &mut self.pixel_matrix;
 
         for row in image.iter_mut() {
@@ -45,7 +45,7 @@ impl Image {
         Err(StegError::UnexpectedError)
     }
 
-    fn has_enough_bits(&self, bytes: &Bytes) -> Result<(), StegError> {
+    fn has_enough_bits(&self, bytes: &[u8]) -> Result<(), StegError> {
         if (self.height * self.width) * 3 < bytes.len() as u32 * 8 {
             return Err(StegError::NotEnoughBits);
         }

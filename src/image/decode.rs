@@ -11,7 +11,7 @@ impl Image {
             .map(|channel| channel & 1)
             .collect();
 
-        let bytes: Bytes = utils::to_bytes(bits);
+        let bytes: Bytes = utils::to_bytes(&bits);
 
         bytes
     }

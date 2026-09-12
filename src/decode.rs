@@ -2,7 +2,7 @@ use crate::errors::StegError;
 use crate::image::Image;
 use crate::payload::Payload;
 
-pub fn decode(target_file: String) -> Result<(), StegError> {
+pub fn decode(target_file: &str) -> Result<(), StegError> {
     //Load image
     let mut image = Image::new();
     match image.load_image(&target_file) {

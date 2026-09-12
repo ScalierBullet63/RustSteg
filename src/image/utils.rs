@@ -3,7 +3,7 @@ use super::Bytes;
 #[cfg(debug_assertions)]
 use super::ImageMatrix;
 
-pub fn to_bits(bytes: Bytes) -> Vec<u8> {
+pub fn to_bits(bytes: &[u8]) -> Vec<u8> {
     //Vec of bits (Big Endian)
     let bits: Vec<u8> = bytes
         .iter()
@@ -13,7 +13,7 @@ pub fn to_bits(bytes: Bytes) -> Vec<u8> {
     bits
 }
 
-pub fn to_bytes(bits: Vec<u8>) -> Bytes {
+pub fn to_bytes(bits: &[u8]) -> Bytes {
     let (chunks, _remainder) = bits.as_chunks::<8>();
     let bytes: Bytes = chunks.iter().map(to_byte).collect();
     bytes

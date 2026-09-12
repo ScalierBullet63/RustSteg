@@ -5,12 +5,12 @@ impl Payload {
     pub fn set_hidden_message(
         &mut self,
         plaintext: String,
-        password: Option<String>,
+        password: Option<&str>,
     ) -> Result<(), StegError> {
         self.hidden_message = plaintext.into_bytes();
 
         if self.header.flags.contains(Flags::ENCRYPTED) {
-            self.encrypt(&password.ok_or(StegError::MissingPassword)?)?;
+            self.encrypt(password.ok_or(StegError::MissingPassword)?)?;
         }
 
         self.header.length = self.hidden_message.len() as u32;
