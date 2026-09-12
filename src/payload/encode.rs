@@ -2,14 +2,17 @@ use super::{Bytes, Flags, Payload};
 use crate::errors::StegError;
 
 impl Payload {
-    pub fn set_hidden_message(&mut self, plaintext: String) -> Result<(), StegError> {
+    pub fn set_hidden_message(
+        &mut self,
+        plaintext: String,
+        password: Option<String>,
+    ) -> Result<(), StegError> {
+        self.hidden_message = plaintext.into_bytes();
+
         if self.header.flags.contains(Flags::ENCRYPTED) {
-            let (ciphertext, auth_tag) = self.encrypt(plaintext)?;
-            self.hidden_message = ciphertext.to_vec();
-            self.auth_tag = Some(auth_tag.as_slice().try_into()?);
-        } else {
-            self.hidden_message = plaintext.as_bytes().to_vec();
+            self.encrypt(&password.ok_or(StegError::MissingPassword)?)?;
         }
+
         self.header.length = self.hidden_message.len() as u32;
 
         Ok(())

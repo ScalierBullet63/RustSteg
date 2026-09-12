@@ -1,3 +1,4 @@
+use crate::cli::ask_password;
 use crate::errors::StegError;
 use crate::image::Image;
 use crate::payload::{Flags, Payload};
@@ -12,13 +13,16 @@ pub fn encode(target_file: String, hidden_message: String, encrypt: bool) -> Res
 
     //Process flags
     let mut flags = Flags::NONE;
-    if encrypt {
+    let password: Option<String> = if encrypt {
         flags.insert(Flags::ENCRYPTED);
-    }
+        Some(ask_password())
+    } else {
+        None
+    };
 
     //Process payload
     let mut payload = Payload::new(flags);
-    match payload.set_hidden_message(hidden_message) {
+    match payload.set_hidden_message(hidden_message, password) {
         Ok(()) => (),
         Err(e) => return Err(e),
     }

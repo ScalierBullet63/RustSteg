@@ -9,6 +9,7 @@ pub enum StegError {
     UnsupportedPayloadVersion,
     InvalidFlags,
     UnsupportedFlag,
+    MissingPassword,
     IoError(std::io::Error),
     TryFromSliceError(std::array::TryFromSliceError),
     ImageError(image::ImageError),
@@ -32,6 +33,7 @@ impl fmt::Display for StegError {
             }
             StegError::InvalidFlags => write!(f, "Invalid flags"),
             StegError::UnsupportedFlag => write!(f, "Unsupported playlaod flag"),
+            StegError::MissingPassword => write!(f, "Missing password"),
             StegError::IoError(e) => write!(f, "Io error: {e}"),
             StegError::TryFromSliceError(e) => write!(f, "TryFromVec error: {e}"),
             StegError::ImageError(e) => write!(f, "Image error: {e}"),
