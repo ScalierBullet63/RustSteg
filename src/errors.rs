@@ -5,9 +5,11 @@ pub enum StegError {
     NotEnoughBits,
     UnexpectedError,
     NotRustStegFile,
+    InvalidPayloadState,
     UnsupportedPayloadVersion,
     InvalidFlags,
     UnsupportedFlag,
+    MissingPassword,
     IoError(std::io::Error),
     TryFromSliceError(std::array::TryFromSliceError),
     ImageError(image::ImageError),
@@ -25,11 +27,13 @@ impl fmt::Display for StegError {
             StegError::NotRustStegFile => {
                 write!(f, "This file doesn't seem to be encoded with RustSteg")
             }
+            StegError::InvalidPayloadState => write!(f, "Invalid payload state"),
             StegError::UnsupportedPayloadVersion => {
                 write!(f, "This payload version isn't supported yet")
             }
             StegError::InvalidFlags => write!(f, "Invalid flags"),
             StegError::UnsupportedFlag => write!(f, "Unsupported playlaod flag"),
+            StegError::MissingPassword => write!(f, "Missing password"),
             StegError::IoError(e) => write!(f, "Io error: {e}"),
             StegError::TryFromSliceError(e) => write!(f, "TryFromVec error: {e}"),
             StegError::ImageError(e) => write!(f, "Image error: {e}"),

@@ -1,9 +1,25 @@
-use super::Binary;
+use super::Bytes;
 
 #[cfg(debug_assertions)]
 use super::ImageMatrix;
 
-pub fn to_byte(bits: &Vec<u8>) -> u8 {
+pub fn to_bits(bytes: &[u8]) -> Vec<u8> {
+    //Vec of bits (Big Endian)
+    let bits: Vec<u8> = bytes
+        .iter()
+        .flat_map(|byte| (0..8).rev().map(move |i| (byte >> i) & 1))
+        .collect();
+
+    bits
+}
+
+pub fn to_bytes(bits: &[u8]) -> Bytes {
+    let (chunks, _remainder) = bits.as_chunks::<8>();
+    let bytes: Bytes = chunks.iter().map(to_byte).collect();
+    bytes
+}
+
+fn to_byte(bits: &[u8; 8]) -> u8 {
     let mut byte: u8 = 0;
     let mut exp: u8 = 7;
     for bit in bits {
@@ -11,14 +27,6 @@ pub fn to_byte(bits: &Vec<u8>) -> u8 {
         exp -= 1;
     }
     byte
-}
-
-pub fn to_ascii(bytes: Binary) -> String {
-    let mut string = String::new();
-    for byte in bytes {
-        string.push(byte as char);
-    }
-    string
 }
 
 #[cfg(debug_assertions)]

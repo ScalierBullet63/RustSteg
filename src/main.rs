@@ -1,3 +1,4 @@
+mod cli;
 mod decode;
 mod encode;
 mod errors;
@@ -57,8 +58,8 @@ fn run(args: Args) -> Result<(), StegError> {
             target_file,
             msg,
             encrypt,
-        } => encode::encode(target_file, msg, encrypt)?,
-        Commands::Decode { target_file } => decode::decode(target_file)?,
+        } => encode::encode(&target_file, msg, encrypt)?,
+        Commands::Decode { target_file } => decode::decode(&target_file)?,
     }
 
     Ok(())

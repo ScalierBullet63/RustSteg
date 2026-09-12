@@ -1,14 +1,11 @@
-use super::{Binary, Image};
+use super::{Image, utils};
 use crate::{StegError, payload::Payload};
 
-#[cfg(debug_assertions)]
-use super::utils;
-
 impl Image {
-    pub fn insert_hidden_message(&mut self, payload: Payload) -> Result<(), StegError> {
-        let bits = payload.into_bits();
-        self.are_bits_enough(&bits)?;
-        let mut bits = bits.iter();
+    pub fn encode(&mut self, payload: Payload) -> Result<(), StegError> {
+        let bytes = payload.into_bytes()?;
+        self.has_enough_bits(&bytes)?;
+        let mut bits = utils::to_bits(&bytes).into_iter();
         let image = &mut self.pixel_matrix;
 
         for row in image.iter_mut() {
@@ -48,8 +45,8 @@ impl Image {
         Err(StegError::UnexpectedError)
     }
 
-    fn are_bits_enough(&self, bits: &Binary) -> Result<(), StegError> {
-        if (self.height * self.width) * 3 < bits.len() as u32 {
+    fn has_enough_bits(&self, bytes: &[u8]) -> Result<(), StegError> {
+        if (self.height * self.width) * 3 < bytes.len() as u32 * 8 {
             return Err(StegError::NotEnoughBits);
         }
         Ok(())
