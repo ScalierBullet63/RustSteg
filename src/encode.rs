@@ -6,7 +6,7 @@ use crate::payload::{Flags, Payload};
 pub fn encode(target_file: &str, hidden_message: String, encrypt: bool) -> Result<(), StegError> {
     //Load image
     let mut image = Image::new();
-    match image.load_image(&target_file) {
+    match image.load_image(target_file) {
         Ok(()) => (),
         Err(e) => return Err(e),
     }

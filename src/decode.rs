@@ -5,7 +5,7 @@ use crate::payload::Payload;
 pub fn decode(target_file: &str) -> Result<(), StegError> {
     //Load image
     let mut image = Image::new();
-    match image.load_image(&target_file) {
+    match image.load_image(target_file) {
         Ok(()) => (),
         Err(e) => return Err(e),
     }
