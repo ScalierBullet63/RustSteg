@@ -1,8 +1,5 @@
 use super::Bytes;
 
-#[cfg(debug_assertions)]
-use super::ImageMatrix;
-
 pub fn to_bits(bytes: &[u8]) -> Vec<u8> {
     //Vec of bits (Big Endian)
     let bits: Vec<u8> = bytes
@@ -27,16 +24,4 @@ fn to_byte(bits: &[u8; 8]) -> u8 {
         exp -= 1;
     }
     byte
-}
-
-#[cfg(debug_assertions)]
-pub fn debug_image(img: &ImageMatrix) {
-    for y in img.iter() {
-        for pixel in y {
-            print!("Red: {:?} ", pixel[0]);
-            print!("Green: {:?} ", pixel[1]);
-            println!("Blue: {:?}", pixel[2]);
-        }
-        println!();
-    }
 }

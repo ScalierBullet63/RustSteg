@@ -12,9 +12,6 @@ impl Image {
             for pixel in row.iter_mut() {
                 for channel in pixel.iter_mut().take(3) {
                     let Some(next_bit) = bits.next() else {
-                        #[cfg(debug_assertions)]
-                        utils::debug_image(image);
-
                         return Ok(());
                     };
 
