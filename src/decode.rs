@@ -18,6 +18,8 @@ pub fn decode(target_file: &str) -> Result<(), StegError> {
         extracted_payload.decrypt(&ask_password())?;
     };
 
-    println!("Extracted payload: {:?}", extracted_payload);
+    let hidden_message = extracted_payload.ascii_hidden_message();
+
+    println!("Hidden message: {}", hidden_message);
     Ok(())
 }

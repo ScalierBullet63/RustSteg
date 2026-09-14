@@ -7,6 +7,8 @@ use bitflags::bitflags;
 use chacha20poly1305::{XNonce, aead::Generate};
 use rand::Rng;
 
+use crate::payload::utils::to_ascii;
+
 type Bytes = Vec<Byte>;
 type Byte = u8;
 
@@ -63,5 +65,9 @@ impl Payload {
 
     pub fn flags(&self) -> &Flags {
         &self.header.flags
+    }
+
+    pub fn ascii_hidden_message(&self) -> String {
+        to_ascii(&self.hidden_message)
     }
 }
