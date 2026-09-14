@@ -60,4 +60,8 @@ impl Payload {
             auth_tag: None,
         }
     }
+
+    pub fn flags(&self) -> &Flags {
+        &self.header.flags
+    }
 }

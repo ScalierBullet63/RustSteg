@@ -29,8 +29,7 @@ impl Payload {
 
         let (salt, nonce) = salt_nonce_opt;
 
-        let (hidden_message, auth_tag) =
-            get_message(&bytes, length, salt.as_ref(), nonce.as_ref())?;
+        let (hidden_message, auth_tag) = get_message(&bytes, length, flags)?;
 
         Ok(Self {
             header: PayloadHeader {
@@ -88,18 +87,21 @@ fn get_length(bytes: &[u8], flags: Flags) -> Result<u32, StegError> {
 fn get_message(
     bytes: &[u8],
     length: u32,
-    salt: Option<&[u8; 16]>,
-    nonce: Option<&XNonce>,
+    flags: Flags,
 ) -> Result<(Bytes, Option<[u8; 16]>), StegError> {
-    match (salt, nonce) {
-        (Some(_salt), Some(_nonce)) => {
-            let _encypted_bytes = get_n_bytes(bytes, 54, length as usize);
-            todo!("Implement decrypt");
-        }
-        (None, None) => {
-            let message_bytes = get_n_bytes(bytes, 14, length as usize)?;
-            Ok((message_bytes, None))
-        }
-        _ => Err(StegError::InvalidPayloadState),
+    let message_bytes: Bytes;
+    let auth_tag: Option<[u8; 16]>;
+    if flags.contains(Flags::ENCRYPTED) {
+        message_bytes = get_n_bytes(bytes, 54, length as usize)?;
+        auth_tag = Some(
+            get_n_bytes(bytes, 54 + length as usize, 16)?
+                .as_slice()
+                .try_into()?,
+        );
+    } else {
+        message_bytes = get_n_bytes(bytes, 14, length as usize)?;
+        auth_tag = None;
     }
+
+    Ok((message_bytes, auth_tag))
 }
