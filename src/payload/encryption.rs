@@ -6,7 +6,6 @@ use chacha20poly1305::{
     XChaCha20Poly1305,
     aead::{Aead, Key, KeyInit},
 };
-use image::EncodableLayout;
 use zeroize::Zeroize;
 
 impl Payload {
@@ -34,9 +33,10 @@ impl Payload {
         let cipher = XChaCha20Poly1305::new(&key);
 
         self.hidden_message.extend_from_slice(
-            self.auth_tag
+            &self
+                .auth_tag
                 .ok_or(StegError::InvalidPayloadState)?
-                .as_bytes(),
+                .to_vec(),
         );
 
         let decrypted = cipher.decrypt(
