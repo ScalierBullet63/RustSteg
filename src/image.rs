@@ -37,9 +37,6 @@ impl Image {
         self.width = width;
         self.height = height;
 
-        #[cfg(debug_assertions)]
-        utils::debug_image(&self.pixel_matrix);
-
         Ok(())
     }
 
