@@ -18,10 +18,10 @@ pub fn to_bytes(bits: &[u8]) -> Bytes {
 
 fn to_byte(bits: &[u8; 8]) -> u8 {
     let mut byte: u8 = 0;
-    let mut exp: u8 = 7;
+    let mut exp: u8 = 8;
     for bit in bits {
-        byte += bit * u8::pow(2, exp as u32);
         exp -= 1;
+        byte += bit * u8::pow(2, exp as u32);
     }
     byte
 }
