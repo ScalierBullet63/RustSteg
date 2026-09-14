@@ -1,6 +1,7 @@
+use crate::cli::ask_password;
 use crate::errors::StegError;
 use crate::image::Image;
-use crate::payload::Payload;
+use crate::payload::{Flags, Payload};
 
 pub fn decode(target_file: &str) -> Result<(), StegError> {
     //Load image
@@ -11,8 +12,14 @@ pub fn decode(target_file: &str) -> Result<(), StegError> {
     }
 
     let image_bytes = image.to_bytes();
-    let extracted_payload: Payload = Payload::from_bytes(image_bytes)?;
+    let mut extracted_payload: Payload = Payload::from_bytes(image_bytes)?;
 
-    println!("Extracted payload: {:?}", extracted_payload);
+    if extracted_payload.flags().contains(Flags::ENCRYPTED) {
+        extracted_payload.decrypt(&ask_password())?;
+    };
+
+    let hidden_message = extracted_payload.ascii_hidden_message();
+
+    println!("Hidden message: {}", hidden_message);
     Ok(())
 }

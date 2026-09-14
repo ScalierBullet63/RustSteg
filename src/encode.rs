@@ -1,3 +1,5 @@
+use zeroize::Zeroize;
+
 use crate::cli::ask_password;
 use crate::errors::StegError;
 use crate::image::Image;
@@ -13,7 +15,7 @@ pub fn encode(target_file: &str, hidden_message: String, encrypt: bool) -> Resul
 
     //Process flags
     let mut flags = Flags::NONE;
-    let password: Option<String> = if encrypt {
+    let mut password: Option<String> = if encrypt {
         flags.insert(Flags::ENCRYPTED);
         Some(ask_password())
     } else {
@@ -26,6 +28,8 @@ pub fn encode(target_file: &str, hidden_message: String, encrypt: bool) -> Resul
         Ok(()) => (),
         Err(e) => return Err(e),
     }
+
+    password.zeroize();
 
     //Process image
     match image.encode(payload) {
