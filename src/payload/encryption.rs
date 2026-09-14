@@ -33,10 +33,9 @@ impl Payload {
         let cipher = XChaCha20Poly1305::new(&key);
 
         self.hidden_message.extend_from_slice(
-            &self
-                .auth_tag
+            self.auth_tag
                 .ok_or(StegError::InvalidPayloadState)?
-                .to_vec(),
+                .as_ref(),
         );
 
         let decrypted = cipher.decrypt(
