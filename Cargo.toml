@@ -3,6 +3,14 @@ name = "ruststeg"
 version = "0.1.0"
 edition = "2024"
 
+license = "GPL-3.0-only"
+description = "A working progress Rust steganography CLI tool for images, audios and videos!"
+readme = "README.md"
+repository = "https://github.com/ScalierBullet63/ruststeg"
+
+keywords = ["steganography", "cli", "security"]
+categories = ["command-line-utilities"]
+
 [dependencies]
 argon2 = "0.6.0"
 bitflags = "2.13.1"
