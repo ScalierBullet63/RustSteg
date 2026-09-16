@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.1](https://github.com/ScalierBullet63/RustSteg/compare/v0.1.0...v0.1.1) - 2026-09-16
+
+### Other
+
+- setup cargo-dist workflows for cross-platform distribution ([#25](https://github.com/ScalierBullet63/RustSteg/pull/25))
+- update readme ([#24](https://github.com/ScalierBullet63/RustSteg/pull/24))
+- release v0.1.0 ([#21](https://github.com/ScalierBullet63/RustSteg/pull/21))
+
 ## [0.1.0](https://github.com/ScalierBullet63/RustSteg/releases/tag/v0.1.0) - 2026-09-16
 
 ### Added
