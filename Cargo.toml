@@ -2,6 +2,7 @@
 name = "ruststeg"
 version = "0.1.0"
 edition = "2024"
+authors = ["ScalierBullet63"]
 
 license = "GPL-3.0-only"
 description = "A working progress Rust steganography CLI tool for images, audios and videos!"
@@ -19,3 +20,8 @@ clap = { version = "4.6.1", features = ["derive"] }
 image = "0.25.10"
 rand = "0.10.2"
 zeroize = "1.9.0"
+
+# The profile that 'dist' will build with
+[profile.dist]
+inherits = "release"
+lto = "thin"
