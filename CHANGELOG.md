@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.4](https://github.com/ScalierBullet63/RustSteg/compare/v0.1.3...v0.1.4) - 2026-09-18
+
+### Other
+
+- add Windows ARM64 compiling ([#33](https://github.com/ScalierBullet63/RustSteg/pull/33))
+- *(deps)* bump bitflags from 2.13.1 to 2.13.2 ([#30](https://github.com/ScalierBullet63/RustSteg/pull/30))
+
 ## [0.1.3](https://github.com/ScalierBullet63/RustSteg/compare/v0.1.2...v0.1.3) - 2026-09-16
 
 ### Other
