@@ -1,11 +1,13 @@
 use zeroize::Zeroize;
 
+use crate::carrier::check_carrier_format;
 use crate::cli::ask_password;
 use crate::errors::StegError;
 use crate::image::Image;
 use crate::payload::{Flags, Payload};
 
 pub fn encode(target_file: &str, hidden_message: String, encrypt: bool) -> Result<(), StegError> {
+    check_carrier_format(target_file)?;
     //Load image
     let mut image = Image::new();
     match image.load_image(target_file) {
