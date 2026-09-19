@@ -1,12 +1,7 @@
-use std::io::{self, Write, stdin};
+use rpassword::prompt_password;
 
 pub fn ask_password() -> String {
-    print!("Enter the encryption password: ");
-    io::stdout().flush().unwrap();
+    let password = prompt_password("Enter the password: ").unwrap();
 
-    let mut password = String::new();
-    stdin()
-        .read_line(&mut password)
-        .expect("Failed to read the password");
     password.trim().to_string()
 }
