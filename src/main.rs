@@ -1,3 +1,4 @@
+mod carrier;
 mod cli;
 mod decode;
 mod encode;
