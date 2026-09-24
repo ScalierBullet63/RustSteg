@@ -6,7 +6,12 @@ use crate::errors::StegError;
 use crate::image::Image;
 use crate::payload::{Flags, Payload};
 
-pub fn encode(target_file: &str, hidden_message: String, encrypt: bool) -> Result<(), StegError> {
+pub fn encode(
+    target_file: &str,
+    msg: String,
+    output_path: Option<String>,
+    encrypt: bool,
+) -> Result<(), StegError> {
     check_carrier_format(target_file)?;
     //Load image
     let mut image = Image::new();
@@ -26,7 +31,7 @@ pub fn encode(target_file: &str, hidden_message: String, encrypt: bool) -> Resul
 
     //Process payload
     let mut payload = Payload::new(flags);
-    match payload.set_hidden_message(hidden_message, password.as_deref()) {
+    match payload.set_hidden_message(msg, password.as_deref()) {
         Ok(()) => (),
         Err(e) => return Err(e),
     }
@@ -39,7 +44,7 @@ pub fn encode(target_file: &str, hidden_message: String, encrypt: bool) -> Resul
         Err(e) => return Err(e),
     }
 
-    match image.save_image() {
+    match image.save_image(output_path.as_deref()) {
         Ok(()) => (),
         Err(e) => return Err(e),
     }
