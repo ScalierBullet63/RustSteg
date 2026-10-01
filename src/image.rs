@@ -2,9 +2,9 @@ mod decode;
 mod encode;
 mod utils;
 
-use crate::{carrier::check_carrier_format, errors::StegError};
+use crate::errors::StegError;
 use image::{DynamicImage, ImageBuffer, ImageReader, Rgba};
-use std::path::Path;
+use std::path::{Path, PathBuf};
 
 //Custom types
 type ImageMatrix = Vec<ImageRow>;
@@ -15,7 +15,7 @@ type Byte = u8;
 
 pub struct Image {
     pixel_matrix: ImageMatrix,
-    source_path: String,
+    source_path: PathBuf,
     width: u32,
     height: u32,
 }
@@ -24,24 +24,24 @@ impl Image {
     pub fn new() -> Self {
         Self {
             pixel_matrix: ImageMatrix::new(),
-            source_path: String::new(),
+            source_path: PathBuf::new(),
             width: 0,
             height: 0,
         }
     }
 
-    pub fn load_image(&mut self, target_file: &str) -> Result<(), StegError> {
+    pub fn load_image(&mut self, target_file: &Path) -> Result<(), StegError> {
         let (image, width, height) = image_reader(target_file)?;
 
         self.pixel_matrix = image;
-        self.source_path = target_file.to_string();
+        self.source_path = target_file.to_owned();
         self.width = width;
         self.height = height;
 
         Ok(())
     }
 
-    pub fn save_image(&self, output_path: Option<&str>) -> Result<(), StegError> {
+    pub fn save_image(&self, output_path: &Path) -> Result<(), StegError> {
         let mut image_buffer: ImageBuffer<Rgba<u8>, Vec<u8>> =
             ImageBuffer::new(self.width, self.height);
 
@@ -57,30 +57,12 @@ impl Image {
             *dst = *src;
         }
 
-        let mut output_path_string: String = String::new();
-        match output_path {
-            Some(output_path) => output_path_string = output_path.to_string(),
-            None => {
-                if let Some(point_pos) = self.source_path.rfind(".") {
-                    output_path_string = self.source_path.to_string();
-                    output_path_string.truncate(point_pos);
-                    output_path_string += "_steg.";
-                    let extension = Path::new(&self.source_path)
-                        .extension()
-                        .and_then(|ext| ext.to_str());
-                    output_path_string += extension.ok_or(StegError::InvalidPath)?;
-                }
-            }
-        }
-
-        check_carrier_format(&output_path_string)?;
-
-        image_buffer.save(output_path_string)?;
+        image_buffer.save(output_path)?;
         Ok(())
     }
 }
 
-fn image_reader(target_file: &str) -> Result<(ImageMatrix, u32, u32), StegError> {
+fn image_reader(target_file: &Path) -> Result<(ImageMatrix, u32, u32), StegError> {
     let img: DynamicImage = ImageReader::open(target_file)?.decode()?;
 
     let rgba_image: ImageBuffer<Rgba<u8>, Vec<u8>> = img.to_rgba8();

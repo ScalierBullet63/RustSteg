@@ -7,6 +7,7 @@ mod image;
 mod payload;
 
 use clap::{Parser, Subcommand};
+use std::path::Path;
 
 use crate::errors::StegError;
 
@@ -64,8 +65,13 @@ fn run(args: Args) -> Result<(), StegError> {
             msg,
             output_path,
             encrypt,
-        } => encode::encode(&target_file, msg, output_path, encrypt)?,
-        Commands::Decode { target_file } => decode::decode(&target_file)?,
+        } => encode::encode(
+            &Path::new(&target_file),
+            msg,
+            output_path.as_deref().map(Path::new),
+            encrypt,
+        )?,
+        Commands::Decode { target_file } => decode::decode(&Path::new(&target_file))?,
     }
 
     Ok(())
