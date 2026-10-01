@@ -66,12 +66,12 @@ fn run(args: Args) -> Result<(), StegError> {
             output_path,
             encrypt,
         } => encode::encode(
-            &Path::new(&target_file),
+            Path::new(&target_file),
             msg,
             output_path.as_deref().map(Path::new),
             encrypt,
         )?,
-        Commands::Decode { target_file } => decode::decode(&Path::new(&target_file))?,
+        Commands::Decode { target_file } => decode::decode(Path::new(&target_file))?,
     }
 
     Ok(())
