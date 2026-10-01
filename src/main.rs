@@ -7,6 +7,7 @@ mod image;
 mod payload;
 
 use clap::{Parser, Subcommand};
+use std::path::Path;
 
 use crate::errors::StegError;
 
@@ -29,6 +30,10 @@ enum Commands {
         /// Message to hide
         #[arg(short, long)]
         msg: String,
+
+        /// Output path
+        #[arg(short, long)]
+        output_path: Option<String>,
 
         /// Encrypt the message
         #[arg(long)]
@@ -58,9 +63,15 @@ fn run(args: Args) -> Result<(), StegError> {
         Commands::Encode {
             target_file,
             msg,
+            output_path,
             encrypt,
-        } => encode::encode(&target_file, msg, encrypt)?,
-        Commands::Decode { target_file } => decode::decode(&target_file)?,
+        } => encode::encode(
+            Path::new(&target_file),
+            msg,
+            output_path.as_deref().map(Path::new),
+            encrypt,
+        )?,
+        Commands::Decode { target_file } => decode::decode(Path::new(&target_file))?,
     }
 
     Ok(())
